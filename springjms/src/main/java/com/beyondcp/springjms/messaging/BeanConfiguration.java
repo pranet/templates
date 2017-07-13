@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -54,7 +53,7 @@ public class BeanConfiguration {
 
     @Bean
     public MessageConverter customMessageConverter() {
-        MappingJackson2MessageConverter converter = new CustomMessageConvertor();
+        CustomMessageConverter converter = new CustomMessageConverter();
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
         return converter;

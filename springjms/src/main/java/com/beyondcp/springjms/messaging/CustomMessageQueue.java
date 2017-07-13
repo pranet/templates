@@ -6,6 +6,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.jms.TextMessage;
+
 /**
  * Created by pranet on 11/07/17.
  */
@@ -22,7 +24,13 @@ public class CustomMessageQueue {
     @JmsListener(destination = "${queue.name}")
     public void receive(CustomMessage customMessage) {
         if (customMessage.isInvalid()) {
-            log.info("Message not valid" + customMessage.toString());
+            try {
+                String textMessage = ((TextMessage)customMessage.get__message__()).getText();
+                log.error("Unable to convert " + textMessage + " to a valid CustomMessage");
+            }
+            catch (Exception e) {
+                log.error("Unable to convert or log given input " + customMessage.get__message__());
+            }
             return;
         }
         log.info(customMessage.toString());
