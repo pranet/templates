@@ -11,15 +11,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.annotation.JmsListenerConfigurer;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerEndpointRegistrar;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
-import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -29,7 +26,7 @@ import javax.jms.Session;
  */
 @Configuration
 @EnableJms
-public class BeanConfiguration implements JmsListenerConfigurer {
+public class BeanConfiguration {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -56,8 +53,8 @@ public class BeanConfiguration implements JmsListenerConfigurer {
     }
 
     @Bean
-    public MessageConverter jacksonJmsMessageConverter() {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+    public MessageConverter customMessageConverter() {
+        MappingJackson2MessageConverter converter = new CustomMessageConvertor();
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
         return converter;
@@ -70,7 +67,7 @@ public class BeanConfiguration implements JmsListenerConfigurer {
         JmsTemplate jmsTemplate = new JmsTemplate();
         jmsTemplate.setConnectionFactory(connectionFactory);
         jmsTemplate.setDefaultDestinationName(name);
-        jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
+        jmsTemplate.setMessageConverter(customMessageConverter());
         return jmsTemplate;
     }
 
@@ -81,19 +78,7 @@ public class BeanConfiguration implements JmsListenerConfigurer {
         factory.setConnectionFactory(connectionFactory);
         factory.setDestinationResolver(new DynamicDestinationResolver());
         factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-        factory.setMessageConverter(jacksonJmsMessageConverter());
-        return factory;
-    }
-
-    @Override
-    public void configureJmsListeners(JmsListenerEndpointRegistrar registrar) {
-        registrar.setMessageHandlerMethodFactory(myJmsHandlerMethodFactory());
-    }
-
-    @Bean
-    public DefaultMessageHandlerMethodFactory myJmsHandlerMethodFactory() {
-        DefaultMessageHandlerMethodFactory factory = new DefaultMessageHandlerMethodFactory();
-        factory.setValidator(new CustomMessageValidator());
+        factory.setMessageConverter(customMessageConverter());
         return factory;
     }
 

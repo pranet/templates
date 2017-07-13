@@ -27,7 +27,7 @@ public class Main {
     public CommandLineRunner run() {
         return (args) -> {
             CustomMessage message = new CustomMessage("pranet", "verma");
-            messageQueue.send(message);
+//            messageQueue.send(message);
         };
     }
 
